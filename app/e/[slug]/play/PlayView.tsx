@@ -83,6 +83,11 @@ export default function PlayView({ initialData, slug }: { initialData: GameState
         );
     };
 
+    // Calculate End Time
+    const startTime = new Date(run.startedAt).getTime();
+    const endTime = new Date(startTime + event.timeLimitMinutes * 60 * 1000);
+    const endTimeStr = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 pb-[env(safe-area-inset-bottom)]">
             <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex justify-between items-center bg-opacity-95">
@@ -91,9 +96,9 @@ export default function PlayView({ initialData, slug }: { initialData: GameState
                     <div className="text-2xl font-black text-blue-600">{totalScore}</div>
                 </div>
                 <div className="text-right">
-                    <div className="text-xs text-slate-400">残り時間</div>
-                    <div className="font-mono font-bold text-slate-700">
-                        {event.timeLimitMinutes}分
+                    <div className="text-xs text-slate-400">終了予定</div>
+                    <div className="font-mono font-bold text-slate-900 text-lg leading-none">
+                        {endTimeStr}
                     </div>
                 </div>
             </header>
