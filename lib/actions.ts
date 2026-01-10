@@ -112,7 +112,15 @@ export async function updateParticipantName(runId: string, name: string) {
  * Fetch all game state
  */
 export async function getGameState(slug: string) {
-    const { runId } = await joinEvent(slug); // Ensure session
+    const cookieStore = await cookies();
+    const deviceId = cookieStore.get(COOKIE_NAME)?.value;
+
+    if (!deviceId) return null; // No session, redirect to join
+    const runId = (await prisma.run.findFirst({
+        where: { participantName: deviceId, event: { slug } }
+    }))?.id;
+    if (!runId) return null; // Session exists but not for this event
+
 
     const event = await prisma.event.findUnique({
         where: { slug },
