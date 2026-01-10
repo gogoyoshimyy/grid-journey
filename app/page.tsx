@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 space-y-8">
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight font-kanji">フォト漢字ビンゴ</h1>
+        <h1 className="text-4xl font-black text-slate-900 tracking-tight font-kanji">Grid Journey</h1>
         <p className="text-slate-600 font-medium">MVP プロトタイプ</p>
       </div>
 
