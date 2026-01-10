@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model OrganizerUser {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events    Event[]
+}
+
+model Event {
+  id                String   @id @default(uuid())
+  slug              String   @unique
+  title             String
+  organizerId       String
+  organizer         OrganizerUser @relation(fields: [organizerId], references: [id])
+  
+  // Settings
+  gridSize          Int      @default(3) // 3, 4, 5
+  timeLimitMinutes  Int      // Game duration in minutes
+  lineBonusPoints   Int      @default(100)
+  maxResubmits      Int      @default(2)
+  status            String   @default("draft") // draft, active, ended
+  
+  description       String?
+  rules             String?
+  
+  tiles             Tile[]
+  runs              Run[]
+  sponsors          Sponsor[]
+  adSlots           AdSlot[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Tile {
+  id                String   @id @default(uuid())
+  eventId           String
+  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  // Position (0-indexed)
+  coordinateX       Int
+  coordinateY       Int
+  
+  // Content
+  kanji             String
+  description       String
+  hint              String?
+  imageUrl          String?
+
+  // Configuration
+  isFixed           Boolean    @default(false) // For secrets
+  submissionFormat  String     @default("any") // 'any', 'photo_only', 'text_only'
+  
+  // Logic
+  tilePoints        Int      @default(10)
+  tileType          String   @default("standard")
+  eventBonusPoints  Int      @default(0)
+  
+  // Timing
+  publishAt         DateTime? // Unlock time
+  expiresAt         DateTime? // Lock time (optional)
+  
+  // Relations
+  sponsorId         String?
+  sponsor           Sponsor? @relation(fields: [sponsorId], references: [id])
+  submissions       Submission[]
+
+  // No longer unique on coord, as many tiles can exist in pool (though fixed ones should be unique per coord)
+  // We'll relax this uniqueness in schema and enforce in logic/app
+}
+
+model Sponsor {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  name        String
+  logoUrl     String?
+  message     String?
+  linkUrl     String?
+  perkText    String?
+  
+  tiles       Tile[]
+  adSlots     AdSlot[]
+}
+
+model AdSlot {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  slotKey     String   // e.g. participant_join_footer, participant_play_footer
+  priority    Int      @default(0)
+  
+  sponsorId   String?
+  sponsor     Sponsor? @relation(fields: [sponsorId], references: [id])
+  messageText String?  // Fallback text if no sponsor
+}
+
+model Run {
+  id                String   @id @default(uuid())
+  eventId           String
+  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  participantName   String?  // Anonymous ID or Alias
+  
+  startedAt         DateTime @default(now())
+  endedAt           DateTime?
+  lastSubmissionAt  DateTime? // For ranking tie-breaker
+  
+  // JSON: { "0,0": "tile_id" }
+  gridMap           String   @default("{}")
+  
+  submissions       Submission[]
+  bingoLines        BingoLineState[]
+  pointLedger       PointLedger[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Submission {
+  id              String   @id @default(uuid())
+  runId           String
+  run             Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  tileId          String
+  tile            Tile     @relation(fields: [tileId], references: [id], onDelete: Cascade)
+  
+  // Content
+  kind            String   // photo, text
+  photoUrl        String?
+  textContent     String?
+  
+  // Status
+  status          String   @default("pending") // pending, approved, rejected
+  reviewNote      String?
+  attemptCount    Int      @default(1)
+  
+  submittedAt     DateTime @default(now())
+  reviewedAt      DateTime?
+}
+
+model BingoLineState {
+  id        String   @id @default(uuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  
+  lineId    String   // row_0, col_2, diag_main, diag_anti
+  achievedAt DateTime @default(now())
+  
+  @@unique([runId, lineId]) // Prevent double counting same line
+}
+
+model PointLedger {
+  id        String   @id @default(uuid())
+  runId     String
+  run       Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  
+  amount    Int
+  type      String   // tile_approved, event_bonus, bingo_line
+  
+  // Optional references
+  refId     String?  // tileId or lineId
+  
+  createdAt DateTime @default(now())
+}
