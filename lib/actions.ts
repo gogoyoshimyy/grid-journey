@@ -138,7 +138,7 @@ export async function getGameState(slug: string) {
     if (!deviceId) return null; // No session, redirect to join
 
     // Auth Check: Match deviceId, with fallback to participantName
-    const run = await prisma.run.findFirst({
+    const authRun = await prisma.run.findFirst({
         where: {
             event: { slug },
             OR: [
@@ -147,12 +147,12 @@ export async function getGameState(slug: string) {
             ]
         }
     });
-    const runId = run?.id;
+    const runId = authRun?.id;
     if (!runId) return null; // Session exists but not for this event
 
     // Backfill if needed (lazy migration)
-    if (run && (!run.deviceId || run.deviceId === "")) {
-        await prisma.run.update({ where: { id: run.id }, data: { deviceId } });
+    if (authRun && (!authRun.deviceId || authRun.deviceId === "")) {
+        await prisma.run.update({ where: { id: authRun.id }, data: { deviceId } });
     }
 
 
