@@ -175,7 +175,7 @@ export async function getGameState(slug: string) {
 
     if (!event) return null;
 
-    const run = await prisma.run.findUnique({
+    const fullRun = await prisma.run.findUnique({
         where: { id: runId },
         include: {
             submissions: true,
@@ -184,27 +184,27 @@ export async function getGameState(slug: string) {
         }
     });
 
-    if (!run) return null; // Should not happen
+    if (!fullRun) return null; // Should not happen
 
     // Calculate generic server time for "Update" button
     const serverTime = new Date();
 
     // Calculate current score (sum of ledger)
-    const totalScore = run.pointLedger.reduce((sum: number, entry: any) => sum + entry.amount, 0);
+    const totalScore = fullRun.pointLedger.reduce((sum: number, entry: any) => sum + entry.amount, 0);
 
     // Determine Ranking Time
     // ranking_time = last_submission_at - started_at
     // If no submissions, use time_limit (converted to ms for comparison simplicity, or just max value)
     let rankingDurationSeconds = 0;
-    if (run.lastSubmissionAt) {
-        rankingDurationSeconds = (run.lastSubmissionAt.getTime() - run.startedAt.getTime()) / 1000;
+    if (fullRun.lastSubmissionAt) {
+        rankingDurationSeconds = (fullRun.lastSubmissionAt.getTime() - fullRun.startedAt.getTime()) / 1000;
     } else {
         rankingDurationSeconds = event.timeLimitMinutes * 60;
     }
 
     // Parse User's Grid
     let gridMap: Record<string, string> = {};
-    try { gridMap = JSON.parse(run.gridMap); } catch (e) { }
+    try { gridMap = JSON.parse(fullRun.gridMap); } catch (e) { }
 
     // Construct User Tiles with "virtual" coordinates
     const userTiles = [];
@@ -236,7 +236,7 @@ export async function getGameState(slug: string) {
 
     return {
         event: eventWithUserTiles,
-        run,
+        run: fullRun,
         serverTime,
         totalScore,
         rankingDurationSeconds
