@@ -17,7 +17,13 @@ export async function joinEvent(slug: string) {
     // Simple anonymous ID generation
     if (!deviceId) {
         deviceId = `user_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-        cookieStore.set(COOKIE_NAME, deviceId, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        cookieStore.set(COOKIE_NAME, deviceId, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 90, // 90 days
+            path: '/',
+            sameSite: 'lax'
+        });
     }
 
     const event = await prisma.event.findUnique({
