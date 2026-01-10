@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { addMinutes } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         console.log('Seeding via API...');
