@@ -2,11 +2,30 @@
 import { joinEvent } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import prisma from '@/lib/db';
 
 export default async function EventLandingPage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
     const { slug } = params;
+
+    // Check existing session
+    const cookieStore = await cookies();
+    const deviceId = cookieStore.get('bingo_device_id')?.value;
+    if (deviceId) {
+        const existingRun = await prisma.run.findFirst({
+            where: {
+                event: { slug },
+                OR: [
+                    { deviceId: deviceId },
+                    { participantName: deviceId }
+                ]
+            }
+        });
+        if (existingRun) {
+            redirect(`/e/${slug}/play`);
+        }
+    }
 
     const event = await prisma.event.findUnique({
         where: { slug },

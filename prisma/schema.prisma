@@ -116,7 +116,8 @@ model Run {
   eventId           String
   event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   
-  participantName   String?  // Anonymous ID or Alias
+  participantName   String?  // Alias / Display Name
+  deviceId          String   @default("") // Immutable Cookie ID for Auth
   
   startedAt         DateTime @default(now())
   endedAt           DateTime?

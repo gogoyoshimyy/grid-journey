@@ -27,10 +27,14 @@ export async function joinEvent(slug: string) {
     if (!event) throw new Error('Event not found');
 
     // Find or Create Run
+    // Auth Check: Look for run with this deviceId
     let run = await prisma.run.findFirst({
         where: {
             eventId: event.id,
-            participantName: deviceId,
+            OR: [
+                { deviceId: deviceId },
+                { participantName: deviceId } // Legacy fallback
+            ]
         }
     });
 
@@ -38,9 +42,19 @@ export async function joinEvent(slug: string) {
         run = await prisma.run.create({
             data: {
                 eventId: event.id,
-                participantName: deviceId,
+                participantName: deviceId, // Default name = ID
+                deviceId: deviceId,
             }
         });
+    } else {
+        // Backfill deviceId if missing (Legacy migration)
+        if (!run.deviceId || run.deviceId === "") {
+            await prisma.run.update({
+                where: { id: run.id },
+                data: { deviceId: deviceId }
+            });
+            run.deviceId = deviceId;
+        }
     }
 
     // Check GridMap, Generate if empty/missing
@@ -116,10 +130,24 @@ export async function getGameState(slug: string) {
     const deviceId = cookieStore.get(COOKIE_NAME)?.value;
 
     if (!deviceId) return null; // No session, redirect to join
-    const runId = (await prisma.run.findFirst({
-        where: { participantName: deviceId, event: { slug } }
-    }))?.id;
+
+    // Auth Check: Match deviceId, with fallback to participantName
+    const run = await prisma.run.findFirst({
+        where: {
+            event: { slug },
+            OR: [
+                { deviceId: deviceId },
+                { participantName: deviceId }
+            ]
+        }
+    });
+    const runId = run?.id;
     if (!runId) return null; // Session exists but not for this event
+
+    // Backfill if needed (lazy migration)
+    if (run && (!run.deviceId || run.deviceId === "")) {
+        await prisma.run.update({ where: { id: run.id }, data: { deviceId } });
+    }
 
 
     const event = await prisma.event.findUnique({
