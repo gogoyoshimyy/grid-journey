@@ -14,7 +14,7 @@ export default async function EventLandingPage(props: { params: Promise<{ slug: 
     });
 
     if (!event) {
-        return <div className="p-8 text-center">Event not found</div>;
+        return <div className="p-8 text-center text-slate-500">イベントが見つかりません</div>;
     }
 
     const joinAction = async () => {
@@ -29,23 +29,23 @@ export default async function EventLandingPage(props: { params: Promise<{ slug: 
         <div className="min-h-screen flex flex-col bg-slate-50 relative">
             <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-8 max-w-md mx-auto w-full">
                 <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">{event.title}</h1>
-                    <p className="text-slate-500">{event.timeLimitMinutes} Minutes Challenge</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-kanji">{event.title}</h1>
+                    <p className="text-slate-500">{event.timeLimitMinutes}分間のチャレンジ</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 w-full space-y-4">
-                    <h2 className="font-semibold text-lg">Rules</h2>
-                    <div className="text-sm text-slate-600 space-y-2">
-                        <p>1. Find items matching the Kanji.</p>
-                        <p>2. Take a photo or write text.</p>
-                        <p>3. Submit and wait for approval.</p>
-                        <p>4. Get Bingo lines for extra points!</p>
+                    <h2 className="font-semibold text-lg text-slate-800">ルール</h2>
+                    <div className="text-sm text-slate-600 space-y-3 font-medium">
+                        <p>1. 漢字に合ったアイテムを探そう</p>
+                        <p>2. 写真を撮ってアップロード</p>
+                        <p>3. 承認されるとポイントゲット</p>
+                        <p>4. ビンゴを揃えてボーナスを狙え！</p>
                     </div>
                 </div>
 
                 <form action={joinAction} className="w-full">
-                    <Button size="lg" className="w-full text-lg shadow-blue-200 shadow-lg">
-                        Join Event
+                    <Button size="lg" className="w-full text-lg shadow-blue-200 shadow-lg font-bold">
+                        イベントに参加する
                     </Button>
                 </form>
             </div>

@@ -9,18 +9,30 @@ import { cn } from '@/components/ui/button'; // reuse
 
 export default function TileEditor({ event }: { event: any }) {
     const [selectedTile, setSelectedTile] = useState<any>(null);
+    const [isSaving, setIsSaving] = useState(false);
     const router = useRouter();
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
+        if (isSaving) return;
 
-        await updateTile(selectedTile.id, data);
-        alert('保存しました！');
-        setSelectedTile(null);
-        router.refresh();
+        setIsSaving(true);
+        try {
+            const form = e.target as HTMLFormElement;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            await updateTile(selectedTile.id, data);
+
+            // Success feedback mostly handled by UI saving state and clearing selection
+            setSelectedTile(null);
+            router.refresh();
+        } catch (e) {
+            alert('エラーが発生しました');
+            console.error(e);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -125,9 +137,7 @@ export default function TileEditor({ event }: { event: any }) {
                                         defaultChecked={selectedTile.isFixed}
                                         onChange={(e) => {
                                             const form = e.target.closest('form');
-                                            if (form) form.dataset.secret = e.target.checked.toString();
-                                            // Force re-render or just use CSS/JS logic? React state is better.
-                                            // But since we use uncontrolled form, let's just cheat with state for this checkbox.
+                                            if (form) (form as any).dataset.secret = e.target.checked.toString();
                                             setSelectedTile({ ...selectedTile, isFixed: e.target.checked });
                                         }}
                                         className="w-4 h-4 accent-blue-600"
@@ -158,7 +168,9 @@ export default function TileEditor({ event }: { event: any }) {
                             )}
                         </div>
 
-                        <Button type="submit" className="w-full font-bold shadow-sm">変更を保存</Button>
+                        <Button type="submit" disabled={isSaving} className="w-full font-bold shadow-sm">
+                            {isSaving ? '保存中...' : '変更を保存'}
+                        </Button>
                     </form>
                 ) : (
                     <div className="text-center text-slate-400 py-24 bg-slate-50 rounded-xl border border-dashed border-slate-200">
