@@ -91,11 +91,19 @@ export default function PlayView({ initialData, slug }: { initialData: GameState
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 pb-[env(safe-area-inset-bottom)]">
             <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex justify-between items-center bg-opacity-95">
-                <div>
-                    <h1 className="font-bold text-sm text-slate-500 uppercase tracking-wider">合計ポイント</h1>
-                    <div className="text-2xl font-black text-blue-600">{totalScore}</div>
+                <div className="flex-1">
+                    <h1 className="font-bold text-xs text-slate-500 uppercase tracking-wider">合計ポイント</h1>
+                    <div className="text-2xl font-black text-blue-600 leading-none">{totalScore}</div>
                 </div>
-                <div className="text-right">
+
+                <div className="shrink-0 px-2 text-center">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Player</div>
+                    <div className="font-bold text-slate-800 text-sm max-w-[120px] truncate">
+                        {run.participantName || 'Guest'}
+                    </div>
+                </div>
+
+                <div className="flex-1 text-right">
                     <div className="text-xs text-slate-400">終了予定</div>
                     <div className="font-mono font-bold text-slate-900 text-lg leading-none">
                         {endTimeStr}
