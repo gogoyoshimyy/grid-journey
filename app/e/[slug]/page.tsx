@@ -1,9 +1,9 @@
 
 import { joinEvent } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/db';
+import JoinButton from './JoinButton';
 
 export default async function EventLandingPage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
@@ -63,9 +63,7 @@ export default async function EventLandingPage(props: { params: Promise<{ slug: 
                 </div>
 
                 <form action={joinAction} className="w-full">
-                    <Button size="lg" className="w-full text-lg shadow-blue-200 shadow-lg font-bold">
-                        イベントに参加する
-                    </Button>
+                    <JoinButton />
                 </form>
             </div>
 
