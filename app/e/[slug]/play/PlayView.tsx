@@ -254,16 +254,51 @@ function SubmissionModal({ tile, status, submission, onClose, slug, runId }: any
         }
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            setPreviewUrl(url);
-            setMode('preview');
-        }
+    const isSecret = tile.isFixed;
+
+    // Image Compression Helper
+    const compressImage = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; // Resize to reasonable max width
+                    const scaleSize = MAX_WIDTH / img.width;
+                    const width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
+                    const height = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height;
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG 0.7
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(dataUrl);
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (err) => reject(err);
+        });
     };
 
-    const isSecret = tile.isFixed;
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            try {
+                // Show loading/processing state if needed, but for now just wait
+                const compressedDataUrl = await compressImage(file);
+                setPreviewUrl(compressedDataUrl); // Use Data URL for preview too
+                setMode('preview');
+            } catch (e) {
+                alert("画像の読み込みに失敗しました");
+            }
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:flex sm:items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200 backdrop-blur-sm">

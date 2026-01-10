@@ -55,11 +55,21 @@ export default function ReviewList({ initialSubmissions }: { initialSubmissions:
 
                     <div className="bg-slate-50 p-4 rounded-lg flex items-center justify-center min-h-[120px]">
                         {sub.kind === 'photo' ? (
-                            // Mock Photo Display
-                            <div className="flex flex-col items-center text-slate-400">
-                                <Camera className="w-8 h-8 mb-2" />
-                                <span className="text-xs">Photo Content (Mock)</span>
-                            </div>
+                            sub.photoUrl ? (
+                                <div className="relative w-full h-full min-h-[300px] bg-black rounded-lg overflow-hidden">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={sub.photoUrl}
+                                        alt="Submission"
+                                        className="w-full h-full object-contain absolute inset-0"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center text-slate-400">
+                                    <Camera className="w-8 h-8 mb-2" />
+                                    <span className="text-xs">No Photo Data</span>
+                                </div>
+                            )
                         ) : (
                             <div className="w-full">
                                 <AlignLeft className="w-4 h-4 text-slate-400 mb-2" />
