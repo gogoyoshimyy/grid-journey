@@ -2,6 +2,8 @@
 import prisma from '@/lib/db';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
     const events = await prisma.event.findMany({
         orderBy: { createdAt: 'desc' }
