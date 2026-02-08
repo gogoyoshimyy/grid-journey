@@ -1,42 +1,34 @@
-
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import Hero from '@/components/landing/Hero';
+import Concept from '@/components/landing/Concept';
+import Features from '@/components/landing/Feature';
+import UseCases from '@/components/landing/UseCase';
+import Footer from '@/components/landing/Footer';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight font-kanji">Grid Journey</h1>
-        <p className="text-slate-600 font-medium">MVP プロトタイプ</p>
-      </div>
+    <main className="min-h-screen bg-white selection:bg-indigo-100 selection:text-indigo-900">
+      <Hero />
+      <Concept />
+      <UseCases />
+      <Features />
 
-      <div className="grid gap-4 w-full max-w-sm">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-4">
-          <h2 className="font-bold text-lg text-slate-700">参加者の方はこちら</h2>
-          <Link href="/e/demo-bingo" className="block w-full">
-            <Button className="w-full text-lg h-14 font-bold" variant="primary">
-              デモイベントに参加
-            </Button>
-          </Link>
-          <p className="text-xs text-center text-slate-400">イベントID: demo-bingo</p>
+      {/* Call to Action Section */}
+      <section className="py-24 bg-indigo-900 text-white text-center">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-black font-kanji mb-6">さあ、旅に出よう。</h2>
+          <p className="text-indigo-200 mb-10 text-lg">
+            あなたの街も、まだ知らない「物語」で溢れている。
+          </p>
+          <a
+            href="/e/demo-bingo"
+            className="inline-block bg-white text-indigo-900 px-10 py-4 rounded-full font-bold text-lg hover:bg-indigo-50 hover:scale-105 transition-all shadow-xl"
+          >
+            デモイベントを体験する
+          </a>
         </div>
+      </section>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-4">
-          <h2 className="font-bold text-lg text-slate-700">主催者の方はこちら</h2>
-          <Link href="/admin" className="block w-full">
-            <Button variant="secondary" className="w-full font-bold">
-              管理画面へ
-            </Button>
-          </Link>
-        </div>
-
-        <div className="bg-slate-100 p-4 rounded-xl text-center space-y-2">
-          <p className="text-xs font-mono text-slate-500">初回セットアップ (開発用)</p>
-          <Link href="/api/seed" target="_blank" className="text-blue-600 text-sm font-bold hover:underline">
-            初期データを投入 (/api/seed)
-          </Link>
-        </div>
-      </div>
-    </div>
+      <Footer />
+    </main>
   );
 }
