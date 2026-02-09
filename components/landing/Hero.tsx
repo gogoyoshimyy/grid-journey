@@ -50,9 +50,6 @@ export default function Hero() {
                 デモに参加 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
-            <Link href="/admin" className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-all flex items-center gap-2">
-              主催者として作成
-            </Link>
           </div>
         </motion.div>
 
