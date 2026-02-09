@@ -13,9 +13,6 @@ export default function Footer() {
                 </div>
 
                 <div className="flex gap-8 text-sm font-bold text-slate-600">
-                    <Link href="/admin" className="hover:text-indigo-700 transition-colors">
-                        主催者ログイン
-                    </Link>
                     <Link href="/e/demo-bingo" className="hover:text-indigo-700 transition-colors">
                         デモイベント
                     </Link>
