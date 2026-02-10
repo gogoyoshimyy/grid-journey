@@ -23,17 +23,21 @@ export async function GET() {
         // 2. Create Event
         const event = await prisma.event.upsert({
             where: { slug: 'demo-bingo' },
-            update: {},
+            update: {
+                gridSize: 4, // Update to 4x4
+                title: '鹿児島 街歩きビンゴ (4x4)',
+                description: '鹿児島の名物を探して写真を撮ろう！',
+            },
             create: {
                 slug: 'demo-bingo',
-                title: 'Demo Photo Bingo 5x5',
+                title: '鹿児島 街歩きビンゴ (4x4)',
                 organizerId: organizer.id,
-                gridSize: 5,
+                gridSize: 4,
                 timeLimitMinutes: 60,
                 lineBonusPoints: 100,
                 maxResubmits: 2,
                 status: 'active',
-                description: 'Take photos of these items! 5x5 Grid.',
+                description: '鹿児島の名物を探して写真を撮ろう！',
             },
         });
 
@@ -41,9 +45,9 @@ export async function GET() {
         const sponsorA = await prisma.sponsor.create({
             data: {
                 eventId: event.id,
-                name: 'TechCorp',
-                message: 'Empowering Developers',
-                perkText: 'Get 10% off',
+                name: '薩摩観光協会',
+                message: '鹿児島を楽しもう！',
+                perkText: '特産品 10% OFF',
             }
         });
 
@@ -56,21 +60,26 @@ export async function GET() {
             where: { eventId: event.id }
         });
 
-        // 5. Create Tiles
+        // 5. Create Tiles (4x4 = 16 tiles)
+        // Kagoshima Themed Kanji List
+        const kagosimaKanji = [
+            '桜', '島', '芋', '黒',
+            '豚', '湯', '西', '郷',
+            '海', '山', '駅', '電',
+            '港', '鳥', '犬', '愛'
+        ];
+
         const tilesData = [];
-        let count = 1;
-        for (let y = 0; y < 5; y++) {
-            for (let x = 0; x < 5; x++) {
+        let count = 0;
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 4; x++) {
                 let type = 'normal';
                 let publishTime = null;
-                let kanji = `${count}`;
+                let kanji = kagosimaKanji[count] || `${count + 1}`;
 
-                if (x === 2 && y === 2) {
+                // Center-ish bonus (1,1) or (2,2)
+                if (x === 1 && y === 1) {
                     type = 'event';
-                }
-
-                if (x === 4 && y === 4) {
-                    publishTime = addMinutes(new Date(), 30);
                 }
 
                 tilesData.push({
@@ -78,7 +87,7 @@ export async function GET() {
                     coordinateX: x,
                     coordinateY: y,
                     kanji: kanji,
-                    description: '',
+                    description: `${kanji}に関連する写真を撮ろう`,
                     hint: '',
                     tilePoints: 10,
                     tileType: type,
@@ -110,7 +119,7 @@ export async function GET() {
             }
         });
 
-        return NextResponse.json({ success: true, message: 'Seeding complete for demo-bingo' });
+        return NextResponse.json({ success: true, message: 'Seeding complete for demo-bingo (4x4 Kagoshima)' });
     } catch (error: any) {
         console.error('Seeding failed:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
